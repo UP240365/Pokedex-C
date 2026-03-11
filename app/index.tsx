@@ -1,6 +1,6 @@
 import PokemonCard from "@/components/PokemonCard";
 import { useEffect, useState } from "react";
-import { ScrollView } from "react-native";
+import { ScrollView, TextInput, View } from "react-native";
 
 interface Pokemon {
   name: string;
@@ -9,8 +9,9 @@ interface Pokemon {
 
 export default function Index() {
   const [results, setResults] = useState<Pokemon[]>([]);
+  const [search, setSearch] = useState("");
+
   useEffect(() => {
-    console.log("entre en pantalla");
     getPokemons();
   }, []);
 
@@ -20,7 +21,6 @@ export default function Index() {
       const response = await fetch(URL, { method: "GET" });
 
       if (response.ok) {
-        //console.log(response);
         const data = await response.json();
         setResults(data.results);
       } else {
@@ -31,17 +31,31 @@ export default function Index() {
     }
   };
 
+  const filterPokemon = results.filter((pokemon) =>
+    pokemon.name.toLowerCase().includes(search.toLowerCase()),
+  );
+
   return (
     <ScrollView>
-      {results.map((item) => {
-        return (
-          <PokemonCard
-            key={item.name}
-            name={item.name}
-            url={item.url}
-          ></PokemonCard>
-        );
-      })}
+      <TextInput
+        placeholder="Buscar Pokémon..."
+        value={search}
+        onChangeText={setSearch}
+        style={{
+          borderWidth: 1,
+          padding: 10,
+          margin: 10,
+          borderRadius: 8,
+        }}
+      />
+
+      <View>
+        {filterPokemon.map((item) => {
+          return (
+            <PokemonCard key={item.name} name={item.name} url={item.url} />
+          );
+        })}
+      </View>
     </ScrollView>
   );
 }
